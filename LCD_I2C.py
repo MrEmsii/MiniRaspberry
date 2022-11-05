@@ -1,3 +1,7 @@
+# Author: Emsii 
+# Date: 26.10.2022 
+# https://github.com/EmsiiDiss
+
 import API_LCD_I2C, inne
 import time, w1thermsensor, psutil, datetime
 from gpiozero import CPUTemperature

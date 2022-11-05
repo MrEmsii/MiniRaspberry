@@ -1,3 +1,7 @@
+# Author: Emsii 
+# Date: 26.10.2022 
+# https://github.com/EmsiiDiss
+
 from asyncio.windows_events import NULL
 import sqlite3, shutil, hashlib
 
