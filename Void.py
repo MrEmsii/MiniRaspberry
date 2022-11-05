@@ -1,3 +1,7 @@
+# Author: Emsii 
+# Date: 26.10.2022 
+# https://github.com/EmsiiDiss
+
 import inne
 import LCD_I2C
 import leds

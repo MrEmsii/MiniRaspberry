@@ -1,9 +1,8 @@
 import API_LCD_I2C, inne
-import time, w1thermsensor, psutil, socket, datetime
+import time, w1thermsensor, psutil, datetime
 from gpiozero import CPUTemperature
 from subprocess import check_output
-#from datetime import datetime,timezone
-import sqlite3, traceback, os
+import sqlite3, os
 
 mylcd = API_LCD_I2C.lcd()
 sensor = w1thermsensor.W1ThermSensor()
