@@ -78,12 +78,12 @@ class glowa:
 				continue
 				
 			if g_stop == 1:
-				g = g + 0.001
+				g = g + 0.01
 				if g >= 0.8:
 					g_stop = 0
 			
 			if g_stop == 0:
-				g = g - 0.001
+				g = g - 0.01
 				if g <= 0.1:
 					g_stop = 1
 			
@@ -93,6 +93,7 @@ class glowa:
 			
 			
 			for Dane in tablica:
+				#print(g)
 				tab = Dane['wartosc']
 				if tab == "1":
 					pixels.fill((255, 0, 0))
@@ -123,14 +124,14 @@ class glowa:
 									
 				if tab == "eq":
 					g = 0.6
-					rainbow_cycle(0.001) 
+					rainbow_cycle(0.01) 
 					i = i + 1 
 									
 				if tab == "0":
 					pixels.fill((0, 0, 0))	
 			
 			pixels.show()
-			time.sleep(0.25)
+			time.sleep(0.025)
 
 
 class inne:
