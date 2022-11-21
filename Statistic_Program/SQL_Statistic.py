@@ -54,6 +54,13 @@ def stats_calculator():
         for row in cursor:
             teraz = str(rok) + "-" + str(miesiac) + "-" + str(dzien) + "-" + str(godzina)
             wiersz = str(int(row[3][0:4])) + "-" + str(int(row[3][5:7])) + "-" + str(int(row[3][8:12])) + "-" + str(int(row[1][0:2]))
+
+            local_1 = float(str(row[3][5:7] + "." + row[3][8:12]))
+            local_2 = float(str(miesiac) + "." + str(dzien))
+
+            if local_1 > local_2:
+                break  
+
             if wiersz == teraz:
                 if min > float(row[2]):
                     min = float(row[2])
@@ -66,9 +73,7 @@ def stats_calculator():
                     days_hour = row[3] + str(" 0" + str(godzina) + ":00:00")
                 else:
                     days_hour = row[3] + str(" " + str(godzina) + ":00:00")
-
-            #elif wiersz > teraz:
-            #    break           
+      
         godzina = godzina + 1
         
         if days_hour != last:
@@ -92,14 +97,11 @@ def stats_calculator():
             rok = rok + 1
             miesiac = 1
 
-        #print(godzina,dzien,miesiac,rok)
-
         chwila = datetime.date(rok, miesiac, dzien)
         minelo = (koniec_dni - chwila).days
         procent = str(int((1 - minelo/minelo_start)*100))
-        #print(teraz, wiersz)
+
         if kolej != chwila:
-            print(teraz, wiersz)     
             print(procent + "%")
             kolej = chwila
 
