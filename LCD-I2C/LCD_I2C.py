@@ -41,7 +41,7 @@ class funkcje:
 		if len(cmd) > 5 and len(cmd) < 16:
 			return cmd
 		else:
-			return "No IP"
+			return "     No IP     "
 
 	def stats():
 		cpu_proc = "  CPU= " + str(psutil.cpu_percent(interval = 0.5)) + "%  "
