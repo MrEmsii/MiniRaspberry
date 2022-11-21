@@ -1,6 +1,6 @@
 # Project: MiniRasberry
 # Author: Emsii 
-# 1 Update Date and Create: 5.11.2022
+# 1 Update Date and Created: 5.11.2022
 
 Test program for learning Python3 and RasberryPi
 
