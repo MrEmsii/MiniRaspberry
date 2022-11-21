@@ -3,29 +3,39 @@
 # https://github.com/EmsiiDiss
 
 from asyncio.windows_events import NULL
-import sqlite3, shutil, hashlib
+import sqlite3, shutil, hashlib, datetime
 
 def tablica():
-    cursor.execute("DROP TABLE IF EXISTS STATS")
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS STATS (
-            DATA varchar(250) NOT NULL,
-            TEMP_SR varchar(250) NOT NULL,
-            TEMP_MIN varchar(250) NOT NULL,
-            TEMP_MAX varchar(250) NOT NULL
-        )""")
+    try:
+        cursor.execute("DROP TABLE IF EXISTS STATS")
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS STATS (
+                DATA varchar(250) NOT NULL,
+                TEMP_SR varchar(250) NOT NULL,
+                TEMP_MIN varchar(250) NOT NULL,
+                TEMP_MAX varchar(250) NOT NULL
+            )""")
 
-    print ("Table created successfully")
+        print ("Table creating successfully")
 
-def stats_data():
+    except:
+        print("\n\nCRASH Table creating\n\n")
+        raise SystemExit(0) 
+            
+
+def stats_calculator():
     min  = 9*10^3
     max = NULL
     sr = NULL
-    sr_ind = 0
+    sr_ind = NULL
+    kolej = NULL
 
+    print("Starting calculation")
+    
     cursor = conn.execute("SELECT MAX(data), MAX(godzina) from temperatura")
     for row in cursor:
-        koniec = str(str(row[0])[0:4] + "-" + str(int(row[0][5:7])) + "-" + str(int(row[0][8:12])) + " " + str(int(row[1][0:2])))
+        koniec = str(row[0])[0:4] + str(int(row[0][5:7])) + str(int(row[0][8:12])) + str(int(row[1][0:2]))
+        koniec_dni = datetime.date(int(str(row[0])[0:4]), int(row[0][5:7]), int(row[1][0:2]))
         teraz = NULL
 
     cursor = conn.execute("SELECT id, godzina, temp_dot, data FROM temperatura WHERE id=1")
@@ -34,16 +44,17 @@ def stats_data():
         miesiac = int(row[3][5:7])
         dzien = int(row[3][8:12])
         godzina = int(row[1][0:2])
+        chwila = datetime.date(rok, miesiac, dzien)
+        minelo_start = (koniec_dni - chwila).days 
 
     last = NULL
 
     while koniec != teraz:
         cursor = conn.execute("SELECT id, godzina, temp_dot, data from temperatura")
         for row in cursor:
-            teraz = str(str(rok) + "-" + str(miesiac) + "-" + str(dzien) + " " + str(godzina))
-            wiersz = str(str(row[3])[0:4] + "-" + str(int(row[3][5:7])) + "-" + str(int(row[3][8:12])) + " " + str(int(row[1][0:2])))
+            teraz = str(str(rok) + str(miesiac) + str(dzien)  + str(godzina))
+            wiersz = str(str(row[3])[0:4] + str(int(row[3][5:7]))  + str(int(row[3][8:12])) + str(int(row[1][0:2])))
             if wiersz == teraz:
-                
                 if min > float(row[2]):
                     min = float(row[2])
                 if max < float(row[2]):
@@ -52,16 +63,19 @@ def stats_data():
                 sr_ind = sr_ind + 1
 
                 if godzina < 10:
-                    days = row[3] + str(" 0" + str(godzina) + ":00:00")
+                    days_hour = row[3] + str(" 0" + str(godzina) + ":00:00")
                 else:
-                    days = row[3] + str(" " + str(godzina) + ":00:00")     
-        godzina = godzina + 1
+                    days_hour = row[3] + str(" " + str(godzina) + ":00:00")
 
-        if days != last:
-            print(days + ", Min = " + str(min) + ", Max = " + str(max) + ", Sr = " + str(sr/sr_ind)[0:5])
-            cursor.execute('INSERT INTO STATS VALUES(?, ?, ?, ?);', ((days, str(sr/sr_ind)[0:5], min, max)))
+            elif wiersz > teraz:
+                break            
+        godzina = godzina + 1
+        
+        if days_hour != last:
+            #print(days_hour + ", Min = " + str(min) + ", Max = " + str(max) + ", Sr = " + str(sr/sr_ind)[0:5])
+            cursor.execute('INSERT INTO STATS VALUES(?, ?, ?, ?);', ((days_hour, str(sr/sr_ind)[0:5], min, max)))
             conn.commit()
-            last = days
+            last = days_hour
 
             min = 9999
             max = NULL
@@ -77,44 +91,80 @@ def stats_data():
         if miesiac == 13:
             rok = rok + 1
             miesiac = 1
-            
-    print("\nPrint Data successfully\n")
+
+        chwila = datetime.date(rok, miesiac, dzien)
+        minelo = (koniec_dni - chwila).days
+        procent = str(int((1 - minelo/minelo_start)*100))
+
+        if kolej != chwila:     
+            print(procent + "%")
+            kolej = chwila
+
+    print("Calculation successfully")
 
 def main():
-    global cursor, conn
+    try:
+        global cursor, conn, stan
 
-    conn = sqlite3.connect("C:/Users/Lenovo/Desktop/Bluetooth/SQL.db")
-    cursor = conn.cursor()
-    print("\nOpened database successfully\n")
+        hex_def()
+
+        conn = sqlite3.connect(way_1)
+        cursor = conn.cursor()
+        print("Opened database successfully")
+
+    except:
+        print("\n\nCRASH Opened database\n\n")
+        raise SystemExit(0) 
 
     tablica()
 
-    stats_data()
+    stats_calculator()
     
     conn.commit()
     conn.close()
 
-    print("Print database successfully\n")    
+    if hex_dsk != hex_source:
+        shutil.copyfile(way_1, way_2)
+    print("Done")    
 
 def file_as_bytes(file):
     with file:
         return file.read()
 
 def hex_def():
-    global hex_source,hex_dsk
-    path_dsk = "C:/Users/Lenovo/Desktop/Bluetooth/SQL.db"
-    path_source = "Y:/SQL.db"
-    hex_dsk = (hashlib.md5(file_as_bytes(open(path_dsk, 'rb'))).hexdigest())
-    hex_source = (hashlib.md5(file_as_bytes(open(path_source, 'rb'))).hexdigest()) 
-    if hex_dsk != hex_source:
-        shutil.copyfile("Y:/SQL.db", "C:/Users/Lenovo/Desktop/Bluetooth/SQL.db")
+    try:
+        global hex_source,hex_dsk
+    
+        print("Dowloading file")
+        hex_dsk = (hashlib.md5(file_as_bytes(open(way_1, 'rb'))).hexdigest())
+        hex_source = (hashlib.md5(file_as_bytes(open(way_2, 'rb'))).hexdigest()) 
+        if hex_dsk != hex_source:
+            shutil.copyfile(way_2, way_1)
+        print("Downloading succesfully")
+
+    except:
+        print("\n\nCRASH dowloading\n\n")
+        raise SystemExit(0) 
+        
+def scanner():
+    global stan, way_1, way_2
+
+    stan = int(input("\nPlease enter STAN: \n  0. DEFAULT \n  1. NON DEFAULT\n ="))
+    if int(stan) < 0 or int(stan) > 1:
+        print("WTF?! \n REPEAT")
+        scanner()
+
+    if stan == 0:
+        way_1 = "C:/Users/Lenovo/Desktop/VisualStudio/SQL.db"
+        way_2 = "Y:/SQL.db"
+    elif stan == 1:
+        way_1 = input("Please enter destiny\n")
+        way_2 = input("Please enter source\n")
+
+    main()
 
 try:
-    hex_def()
-    main()
-    if hex_dsk != hex_source:
-        shutil.copyfile("C:/Users/Lenovo/Desktop/Bluetooth/SQL.db", "Y:/SQL.db")
-    print("Done")
+    scanner()
 
 except KeyboardInterrupt:
     print("STOP_KIboard")    
