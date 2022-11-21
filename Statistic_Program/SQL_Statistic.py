@@ -34,7 +34,7 @@ def stats_calculator():
     
     cursor = conn.execute("SELECT MAX(data), MAX(godzina) from temperatura")
     for row in cursor:
-        koniec = str(row[0])[0:4] + str(int(row[0][5:7])) + str(int(row[0][8:12])) + str(int(row[1][0:2]))
+        koniec = str(int(row[0][0:4]))  + "-" + str(int(row[0][5:7])) + "-" + str(int(row[0][8:12])) + "-" + str(int(row[1][0:2]))
         koniec_dni = datetime.date(int(str(row[0])[0:4]), int(row[0][5:7]), int(row[1][0:2]))
         teraz = NULL
 
@@ -52,8 +52,8 @@ def stats_calculator():
     while koniec != teraz:
         cursor = conn.execute("SELECT id, godzina, temp_dot, data from temperatura")
         for row in cursor:
-            teraz = str(str(rok) + str(miesiac) + str(dzien)  + str(godzina))
-            wiersz = str(str(row[3])[0:4] + str(int(row[3][5:7]))  + str(int(row[3][8:12])) + str(int(row[1][0:2])))
+            teraz = str(rok) + "-" + str(miesiac) + "-" + str(dzien) + "-" + str(godzina)
+            wiersz = str(int(row[3][0:4])) + "-" + str(int(row[3][5:7])) + "-" + str(int(row[3][8:12])) + "-" + str(int(row[1][0:2]))
             if wiersz == teraz:
                 if min > float(row[2]):
                     min = float(row[2])
@@ -61,14 +61,14 @@ def stats_calculator():
                     max = float(row[2])
                 sr = sr + float(row[2])
                 sr_ind = sr_ind + 1
-
+                
                 if godzina < 10:
                     days_hour = row[3] + str(" 0" + str(godzina) + ":00:00")
                 else:
                     days_hour = row[3] + str(" " + str(godzina) + ":00:00")
 
-            elif wiersz > teraz:
-                break            
+            #elif wiersz > teraz:
+            #    break           
         godzina = godzina + 1
         
         if days_hour != last:
@@ -92,11 +92,14 @@ def stats_calculator():
             rok = rok + 1
             miesiac = 1
 
+        #print(godzina,dzien,miesiac,rok)
+
         chwila = datetime.date(rok, miesiac, dzien)
         minelo = (koniec_dni - chwila).days
         procent = str(int((1 - minelo/minelo_start)*100))
-
-        if kolej != chwila:     
+        #print(teraz, wiersz)
+        if kolej != chwila:
+            print(teraz, wiersz)     
             print(procent + "%")
             kolej = chwila
 
