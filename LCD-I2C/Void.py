@@ -3,18 +3,13 @@
 # https://github.com/EmsiiDiss
 
 import inne
-import LCD_I2C
-import leds
 import os, sqlite3, time
 
 i_program = inne.bledy()
-lcd = LCD_I2C.start()
-leds = leds.glowa()
-
 
 class table:
 	def Dane():
-		con = sqlite3.connect('/samba/python/SQL.db')
+		con = sqlite3.connect(way + 'SQL.db')
 		con.row_factory = sqlite3.Row
 		cur = con.cursor()
 		cur.execute("""
@@ -26,28 +21,28 @@ class table:
 		try:	
 			cur.execute('INSERT INTO Dane VALUES(1, "stan_led" , 0);')
 		except Exception:
-			print("Istnieje")
+			return
 			
 		try:	
 			cur.execute('INSERT INTO Dane VALUES(2, "pid_LCD" , 0);')
 		except Exception:
-			print("Istnieje")
+			return
 			
 		try:	
 			cur.execute('INSERT INTO Dane VALUES(3, "pid_Leds" , 0);')
 		except Exception:
-			print("Istnieje")
+			return
 			
 		try:	
 			cur.execute('INSERT INTO Dane VALUES(4, "pid_pilot" , 0);')
 		except Exception:
-			print("Istnieje")
+			return
 			
 		con.commit()	
 		con.close()
 			
 	def temperatura():
-		con = sqlite3.connect('/samba/python/SQL.db')
+		con = sqlite3.connect(way + 'SQL.db')
 		con.row_factory = sqlite3.Row
 		cur = con.cursor()
 
@@ -66,10 +61,11 @@ class table:
 
 class startowe:
 	def kill():
-		con = sqlite3.connect('/samba/python/SQL.db')
+		con = sqlite3.connect(way + 'SQL.db')
 		con.row_factory = sqlite3.Row
 		cur = con.cursor()
 		
+		print("\nOLD PID:")	
 		for num in range(2,5):
 			cur.execute("SELECT Dane.id, wartosc, dana FROM Dane WHERE id=?", (str(num)))
 			lista = cur.fetchall()
@@ -78,16 +74,41 @@ class startowe:
 				if id['wartosc'] != "0":
 					os.system("sudo kill -9 " + id['wartosc'] )
 					time.sleep(0.01)
+		print("\n")			
 		con.close()			
 	
 	def starter():
 		pliki = ["LCD_I2C.py", "leds.py", "pilot.py"]
 		
 		for plik in pliki:
-			os.system("sudo nohup python /samba/python/" + plik + " &")
+			os.system("sudo nohup python " + way + plik + " &")
 			time.sleep(0.5)
 
+		print("\nNew PID:")	
+		con = sqlite3.connect(way + 'SQL.db')
+		con.row_factory = sqlite3.Row
+		cur = con.cursor()
+		
+		for num in range(2,5):
+			cur.execute("SELECT Dane.id, wartosc, dana FROM Dane WHERE id=?", (str(num)))
+			lista = cur.fetchall()
+			for id in lista:
+				print(id['dana'] +" = " + id['wartosc'])	
+			
+	def scanner():
+		global way
+		way = input("Enter way, where are programs:\n 0. DEFAULT\n 1. NOT DEFAULT\n")	
+		if way == "0":
+			way = str("/samba/python/")
+		elif way == "1":
+			way = input()
+		else:
+			print("\nWTF? Enter again\n")
+			startowe.scanner()
+			
+		    
 def main():
+	startowe.scanner()
 	table.temperatura()
 	table.Dane()
 	startowe.kill()
@@ -99,5 +120,4 @@ if __name__ == '__main__':
 		main()
 	except Exception:
 		i_program.error_SQL()
-
 
