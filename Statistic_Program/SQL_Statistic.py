@@ -154,18 +154,31 @@ def hex_def():
 def scanner():
     global stan, way_1, way_2
 
-    stan = int(input("\nPlease enter STAN: \n  0. DEFAULT \n  1. NON DEFAULT\n ="))
-    if int(stan) < 0 or int(stan) > 1:
-        print("WTF?! \n REPEAT")
-        scanner()
+    stan = input("\nPlease enter STAN: \n  0. DEFAULT \n  1. NON DEFAULT\n  2. LIST\n =")
 
+    try:
+        stan = int(stan)
+    except:
+        print("d")
+        scanner()
+        
     if stan == 0:
         way_1 = "C:/Users/Lenovo/Desktop/VisualStudio/SQL.db"
         way_2 = "Y:/SQL.db"
-    elif stan == 1:
-        way_1 = input("Please enter destiny\n")
-        way_2 = input("Please enter source\n")
 
+    elif stan == 1:
+        try:
+            way_1 = input("Please enter destiny\n 0 - DEFAULT\n")
+        except way_1 == 0:
+            way_1 = "C:/Users/Lenovo/Desktop/VisualStudio/SQL.db"
+
+        try:        
+            way_2 = input("Please enter source\n 0 - DEFAULT\n")
+        except way_2 == 0:
+            way_2 = "Y:/SQL.db"    
+    else:
+        print("\nWTF?! \n REPEAT")
+        scanner()
     main()
 
 try:
