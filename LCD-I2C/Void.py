@@ -108,16 +108,29 @@ class startowe:
 			
 		    
 def main():
-	startowe.scanner()
 	table.temperatura()
 	table.Dane()
 	startowe.kill()
 	startowe.starter()
 	
+def startup():
+		global way
+		i = 0
+		way = 0
+		while i <= 4:
+			print("Hit KeyboardInterrupt if you need change DEFAULT way programs!")
+			i = i + 1
+			time.sleep(1)
+		way = str("/samba/python/")	
+		main()	
+	
 
 if __name__ == '__main__':
 	try:
-		main()
+		startup()
 	except Exception:
 		i_program.error_SQL()
+	except KeyboardInterrupt:
+		startowe.scanner()	
+
 
