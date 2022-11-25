@@ -35,7 +35,7 @@ def stats_calculator():
     cursor = conn.execute("SELECT MAX(data), MAX(godzina) from temperatura")
     for row in cursor:
         koniec = str(int(row[0][0:4]))  + "-" + str(int(row[0][5:7])) + "-" + str(int(row[0][8:12])) + "-" + str(int(row[1][0:2]))
-        koniec_dni = datetime.date(int(str(row[0])[0:4]), int(row[0][5:7]), int(row[1][0:2]))
+        koniec_dni = datetime.date(int(row[0][0:4]), int(row[0][5:7]), int(row[0][8:12]))
         teraz = NULL
 
     cursor = conn.execute("SELECT id, godzina, temp_dot, data FROM temperatura WHERE id=1")
@@ -45,8 +45,7 @@ def stats_calculator():
         dzien = int(row[3][8:12])
         godzina = int(row[1][0:2])
         chwila = datetime.date(rok, miesiac, dzien)
-        minelo_start = (koniec_dni - chwila).days 
-
+        minelo_start = (koniec_dni - chwila).days + 1
     last = NULL
 
     while koniec != teraz:
@@ -79,7 +78,7 @@ def stats_calculator():
         if days_hour != last:
             #print(days_hour + ", Min = " + str(min) + ", Max = " + str(max) + ", Sr = " + str(sr/sr_ind)[0:5])
             cursor.execute('INSERT INTO STATS VALUES(?, ?, ?, ?);', ((days_hour, str(sr/sr_ind)[0:5], min, max)))
-            conn.commit()
+            
             last = days_hour
 
             min = 9999
@@ -98,13 +97,14 @@ def stats_calculator():
             miesiac = 1
 
         chwila = datetime.date(rok, miesiac, dzien)
-        minelo = (koniec_dni - chwila).days
-        procent = str(int((1 - minelo/minelo_start)*100))
+        minelo = (koniec_dni - chwila).days + 1
+        
+        procent = str(100 - int((minelo/minelo_start)*100))
 
         if kolej != chwila:
             print(procent + "%")
             kolej = chwila
-
+    conn.commit()
     print("Calculation successfully")
 
 def main():
