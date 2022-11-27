@@ -8,9 +8,9 @@
 import time
 import board, sqlite3, random, os
 import neopixel
-import inne
+import offs_programs
 
-i_program = inne.bledy()
+i_program = offs_programs.bledy()
 g = (random.randint(1,80))/100
 
 pixel_pin = board.D21

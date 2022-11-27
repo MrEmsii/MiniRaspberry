@@ -2,7 +2,7 @@
 # Date: 26.10.2022 
 # https://github.com/EmsiiDiss
 
-import API_LCD_I2C, inne
+import API_LCD_I2C, offs_programs
 import time, w1thermsensor, psutil, datetime
 from gpiozero import CPUTemperature
 from subprocess import check_output
@@ -10,7 +10,7 @@ import sqlite3, os
 
 mylcd = API_LCD_I2C.lcd()
 sensor = w1thermsensor.W1ThermSensor()
-i_program = inne.bledy()
+i_program = offs_programs.bledy()
 
 status = 1
 start_time = float(time.time()) + 5

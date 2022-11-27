@@ -2,10 +2,10 @@
 # Date: 26.10.2022 
 # https://github.com/EmsiiDiss
 
-import inne
+import offs_programs
 import os, sqlite3, time
 
-i_program = inne.bledy()
+i_program = offs_programs.bledy()
 
 class table:
 	def Dane():

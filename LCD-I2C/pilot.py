@@ -11,7 +11,7 @@
 import RPi.GPIO as GPIO
 from datetime import datetime
 import time, sqlite3, os
-import inne
+import offs_programs
 
 pin = 20
 # Static program vars
@@ -21,7 +21,7 @@ ButtonsNames = ["1",   		"2",     	 "3",      		 "4",    	  "5",		"6", 	 		"7", 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(pin, GPIO.IN)
 
-i_program = inne.bledy()
+i_program = offs_programs.bledy()
 
 def getBinary():
 	# Internal vars
