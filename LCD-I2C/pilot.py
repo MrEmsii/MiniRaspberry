@@ -15,8 +15,9 @@ import offs_programs
 
 pin = 20
 # Static program vars
-Buttons = [0x300FF30CF, 0x300FF18E7,  0x300FF7A85, 0x300FF10EF, 0x300FF38C7, 0x300FF5AA5, 0x300FF42BD, 0x300FF4AB5, 0x300FF52AD, 0x300FF6897, 0x300FF9867, 0x300FFB04F, 0x300FFE01F, 0x300FFA857, 0x300FF906F] 
-ButtonsNames = ["1",   		"2",     	 "3",      		 "4",    	  "5",		"6", 	 		"7", 		 "8", 			"9", 	"0", 		"100+", 		"200+", 	"-", 		"+", 		"eq"]  
+Buttons = [0x300FF30CF, 0x300FF18E7,  0x300FF7A85, 0x300FF10EF, 0x300FF38C7, 0x300FF5AA5, 0x300FF42BD, 0x300FF4AB5, 0x300FF52AD, 0x300FF6897, 0x300FF9867, 0x300FFB04F, 0x300FFE01F, 0x300FFA857, 0x300FF906F, 0x300FF22DD, 0x300FF02FD, 0x300FFC23D, 0x300FFA25D, 0x300FF629D, 0x300FFE21D] 
+ButtonsNames = ["1",   		"2",     	 "3",      		 "4",    	  "5",		"6", 	 		"7", 		 "8", 		"9",	 	"0", 		"100+", 	"200+", 		"-", 		"+", 		"eq", 		"<<", 			">>",		 ">||",		 "ch-",			"ch",		"ch+"]  
+#ButtonsIndex = [0				1			2			3			4			5				6				7		8			9			10				11				12			13		14			15				16			17				18			19			20		]
 # Sets up GPIO
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(pin, GPIO.IN)
@@ -33,7 +34,7 @@ def getBinary():
 
 	# Waits for the sensor to pull pin low
 	while value:
-		time.sleep(0.0001) # This sleep decreases CPU utilization immensely
+		time.sleep(0.01) # This sleep decreases CPU utilization immensely
 		value = GPIO.input(pin)
 		
 	# Records start time
@@ -79,8 +80,21 @@ def convertHex(binaryValue):
 	return hex(tmpB2)
 
 
-def main(self):
-	inne.pid_pilot()
+def main():
+	con = sqlite3.connect('/samba/python/SQL.db')
+	con.row_factory = sqlite3.Row
+	cur = con.cursor()
+	effectsTab = cur.execute("SELECT Dane.id, wartosc, dana FROM Dane WHERE id=5")
+	
+	for Dane in effectsTab:
+		effects = int(Dane['wartosc'])
+	brightnessTab = cur.execute("SELECT Dane.id, wartosc, dana FROM Dane WHERE id=6")
+	for Dane in brightnessTab:
+		brightness = float(Dane['wartosc'])
+	colorTab = cur.execute("SELECT Dane.id, wartosc, dana FROM Dane WHERE id=1")
+	for Dane in colorTab:
+		color = float(Dane['wartosc'])
+
 	while True:
 		con = sqlite3.connect('/samba/python/SQL.db')
 		con.row_factory = sqlite3.Row
@@ -88,10 +102,34 @@ def main(self):
 		inData = convertHex(getBinary()) #Runs subs to get incoming hex value
 		for button in range(len(Buttons)):#Runs through every value in list
 			if hex(Buttons[button]) == inData: #Checks this against incoming
-				print(ButtonsNames[button]) #Prints corresponding english name for button
-				cur.execute('UPDATE Dane SET wartosc=? WHERE id=?', (ButtonsNames[button], 1))
-		con.commit()	
+				indexButton = ButtonsNames.index(ButtonsNames[button])
+				# print(ButtonsNames[button], indexButton) #Prints corresponding english name for button
+
+				if int(indexButton) >= 0 and int(indexButton) <= 9:
+					color = ButtonsNames[button]
+					cur.execute('UPDATE Dane SET wartosc=? WHERE id=?', (color, 1))
+
+				elif int(indexButton) >= 15 and int(indexButton) <= 16:
+					if int(indexButton) <= 15:
+						effects = effects - 1
+					else:
+						effects = effects + 1	
+					cur.execute('UPDATE Dane SET wartosc=? WHERE id=?', (effects, 5))	
+				elif int(indexButton) >= 12 and int(indexButton) <= 13:
+					if int(indexButton) <= 12:
+						brightness = brightness - 0.1
+					else:
+						brightness = brightness + 0.1	
+					if brightness > 0.8:
+						brightness = 0.8
+					elif brightness < 0:
+						brightness = 0		
+				cur.execute('UPDATE Dane SET wartosc=? WHERE id=?', (brightness, 6))
+		# print(effects,brightness, color )
+		con.commit()
 		con.close()
+
+		
 
 
 class inne:
@@ -107,7 +145,8 @@ class inne:
 
 if __name__ == '__main__':
 	try:
-		main('')
+		inne.pid_pilot()
+		main()
 	except Exception:
 		print("XD")	
 		i_program.error_SQL()

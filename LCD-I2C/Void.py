@@ -22,7 +22,14 @@ class table:
 			cur.execute('INSERT INTO Dane VALUES(1, "stan_led" , 0);')
 		except Exception:
 			return
-			
+		try:	
+			cur.execute('INSERT INTO Dane VALUES(5, "effects" , 1);')
+		except Exception:
+			return	
+		try:	
+			cur.execute('INSERT INTO Dane VALUES(6, "brightness" , 0.5);')
+		except Exception:
+			return	
 		try:	
 			cur.execute('INSERT INTO Dane VALUES(2, "pid_LCD" , 0);')
 		except Exception:
@@ -42,12 +49,12 @@ class table:
 		con.close()
 			
 	def temperatura():
-		con = sqlite3.connect(way + 'SQL.db')
+		con = sqlite3.connect(way + 'Heat.db')
 		con.row_factory = sqlite3.Row
 		cur = con.cursor()
 
 		cur.execute("""
-			CREATE TABLE IF NOT EXISTS temperatura (
+			CREATE TABLE IF NOT EXISTS Temperatura (
 				id INTEGER PRIMARY KEY ASC,
 				data varchar(250) NOT NULL,
 				godzina varchar(250) NOT NULL,
@@ -117,7 +124,7 @@ def startup():
 		global way
 		i = 0
 		way = 0
-		while i <= 4:
+		while i <= 2:
 			print("Hit KeyboardInterrupt if you need change DEFAULT way programs!")
 			i = i + 1
 			time.sleep(1)

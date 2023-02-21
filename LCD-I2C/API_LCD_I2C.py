@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-# Original code found at:
-# https://gist.github.com/DenisFromHR/cc863375a6e19dce359d
-
-
-
 """
 Compiled, mashed and generally mutilated 2014-2015 by Denis Pleic
 Made available under GNU GENERAL PUBLIC LICENSE
@@ -16,21 +11,13 @@ Made available under GNU GENERAL PUBLIC LICENSE
 # 2015-02-10, ver 0.1
 
 """
-# Add more 26.10.2022 Emsii
-#https://github.com/EmsiiDiss
-
-
-# i2c bus (0 -- original Pi, 1 -- Rev 2 Pi)
-I2CBUS = 1
-
-# LCD Address
-ADDRESS = 0x27
-
+#
+#
 import smbus
-from time import sleep
-import time
+from time import *
+
 class i2c_device:
-   def __init__(self, addr, port=I2CBUS):
+   def __init__(self, addr, port=1):
       self.addr = addr
       self.bus = smbus.SMBus(port)
 
@@ -61,6 +48,10 @@ class i2c_device:
    def read_block_data(self, cmd):
       return self.bus.read_block_data(self.addr, cmd)
 
+
+
+# LCD Address
+ADDRESS = 0x27
 
 # commands
 LCD_CLEARDISPLAY = 0x01
@@ -108,12 +99,7 @@ En = 0b00000100 # Enable bit
 Rw = 0b00000010 # Read/Write bit
 Rs = 0b00000001 # Register select bit
 
-godzina_start = 8
-godzina_stop = 22
-
 class lcd:
-
-   global godzina
    #initializes objects and lcd
    def __init__(self):
       self.lcd_device = i2c_device(ADDRESS)
@@ -129,31 +115,18 @@ class lcd:
       self.lcd_write(LCD_ENTRYMODESET | LCD_ENTRYLEFT)
       sleep(0.2)
 
+
    # clocks EN to latch command
    def lcd_strobe(self, data):
-      global godzina_start, godzina_stop
-      fast = 0.25
-      if float(time.strftime("%H.%M%S")) >= godzina_start and float(time.strftime("%H.%M%S")) <= godzina_stop:
-         self.lcd_device.write_cmd(data | En | LCD_BACKLIGHT)
-         sleep(.0005/fast)
-         self.lcd_device.write_cmd(((data & ~En) | LCD_BACKLIGHT))
-         sleep(.0001/fast)
-      else:
-         self.lcd_device.write_cmd(data | En | LCD_NOBACKLIGHT)
-         sleep(.0005/fast)
-         self.lcd_device.write_cmd(((data & ~En) | LCD_NOBACKLIGHT))
-         sleep(.0001/fast)
-
+      self.lcd_device.write_cmd(data | En | LCD_BACKLIGHT)
+      sleep(.0005)
+      self.lcd_device.write_cmd(((data & ~En) | LCD_BACKLIGHT))
+      sleep(.0001)
 
    def lcd_write_four_bits(self, data):
-      global godzina_stop, godzina_start
-      if float(time.strftime("%H.%M%S")) >= godzina_start and float(time.strftime("%H.%M%S")) <= godzina_stop - 0.5:
-         self.lcd_device.write_cmd(data | LCD_BACKLIGHT)
-         self.lcd_strobe(data)
-      else:
-         self.lcd_device.write_cmd(data | LCD_NOBACKLIGHT)
-         self.lcd_strobe(data)
-         
+      self.lcd_device.write_cmd(data | LCD_BACKLIGHT)
+      self.lcd_strobe(data)
+
    # write a command to lcd
    def lcd_write(self, cmd, mode=0):
       self.lcd_write_four_bits(mode | (cmd & 0xF0))
@@ -165,8 +138,42 @@ class lcd:
       self.lcd_write_four_bits(mode | (charvalue & 0xF0))
       self.lcd_write_four_bits(mode | ((charvalue << 4) & 0xF0))
   
-   # put string function with optional char positioning
-   def lcd_display_string(self, string, line=1, pos=0):
+
+   # put string function
+   def lcd_display_string(self, string, line):
+      if line == 1:
+         self.lcd_write(0x80)
+      if line == 2:
+         self.lcd_write(0xC0)
+      if line == 3:
+         self.lcd_write(0x94)
+      if line == 4:
+         self.lcd_write(0xD4)
+
+      for char in string:
+         self.lcd_write(ord(char), Rs)
+
+   # clear lcd and set to home
+   def lcd_clear(self):
+      self.lcd_write(LCD_CLEARDISPLAY)
+      self.lcd_write(LCD_RETURNHOME)
+
+   # define backlight on/off (lcd.backlight(1); off= lcd.backlight(0)
+   def backlight(self, state): # for state, 1 = on, 0 = off
+      if state == 1:
+         self.lcd_device.write_cmd(LCD_BACKLIGHT)
+      elif state == 0:
+         self.lcd_device.write_cmd(LCD_NOBACKLIGHT)
+
+   # add custom characters (0 - 7)
+   def lcd_load_custom_chars(self, fontdata):
+      self.lcd_write(0x40);
+      for char in fontdata:
+         for line in char:
+            self.lcd_write_char(line)         
+         
+   # define precise positioning (addition from the forum)
+   def lcd_display_string_pos(self, string, line, pos):
     if line == 1:
       pos_new = pos
     elif line == 2:
@@ -180,24 +187,3 @@ class lcd:
 
     for char in string:
       self.lcd_write(ord(char), Rs)
-
-   # clear lcd and set to home
-   def lcd_clear(self):
-      self.lcd_write(LCD_CLEARDISPLAY)
-      self.lcd_write(LCD_RETURNHOME)
-
-   # define backlight on/off (lcd.backlight(1); off= lcd.backlight(0)
-   def backlight(self, state): # for state, 1 = on, 0 = off
-      if state == 1:
-         if float(time.strftime("%H.%M%S")) >= 8 and float(time.strftime("%H.%M%S")) <= 19.55:
-            self.lcd_device.write_cmd(LCD_BACKLIGHT)
-            print(float(time.strftime("%H.%M%S")))
-         else:
-            self.lcd_device.write_cmd(LCD_NOBACKLIGHT)
-
-   # add custom characters (0 - 7)
-   def lcd_load_custom_chars(self, fontdata):
-      self.lcd_write(0x40);
-      for char in fontdata:
-         for line in char:
-            self.lcd_write_char(line)
