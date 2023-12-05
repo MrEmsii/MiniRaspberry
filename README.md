@@ -1,4 +1,4 @@
-# Project: MiniRasberry
+# Project: MiniRaspberry
 # Author: Emsii 
 # 1 Update Date and Created: 5.11.2022
 
