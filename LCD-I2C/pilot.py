@@ -5,8 +5,8 @@
 # License - Completely Free
 # Date - 12/09/2019
 #------------------------------------------------------------#
-# Add more 26.10.2022 Emsii
-#https://github.com/EmsiiDiss
+# Add more 26.10.2022 MrEmsii
+#https://github.com/MrEmsii
 
 import RPi.GPIO as GPIO
 from datetime import datetime

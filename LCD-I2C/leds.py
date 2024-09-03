@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: MIT
 
 # Simple test for NeoPixels on Raspberry Pi
-# Add more 26.10.2022 Emsii
-#https://github.com/EmsiiDiss
+# Add more 26.10.2022 MrEmsii
+#https://github.com/MrEmsii
 
 import time
 import board, sqlite3, random, os

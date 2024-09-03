@@ -1,6 +1,6 @@
-# Author: Emsii 
+# Author: MrEmsii 
 # Date: 26.10.2022 
-# https://github.com/EmsiiDiss
+# https://github.com/MrEmsii
 
 import API_LCD_I2C, offs_programs
 import time, w1thermsensor, psutil, datetime

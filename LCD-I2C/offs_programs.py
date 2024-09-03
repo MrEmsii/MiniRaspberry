@@ -1,6 +1,6 @@
-# Author: Emsii 
+# Author: MrEmsii 
 # Date: 26.10.2022 
-# https://github.com/EmsiiDiss
+# https://github.com/MrEmsii
 
 import traceback, sqlite3,time
 
